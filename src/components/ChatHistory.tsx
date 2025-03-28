@@ -1,6 +1,7 @@
 import { List, ListItem, Paper, Typography } from "@mui/material";
 import { useEffect, useRef } from "react";
 import { IMessage } from "../interfaces/ChatHistoryInterfaces";
+import ReactMarkdown from "react-markdown";
 
 export const ChatHistory = ({ messagesHistory }: { messagesHistory: Array<IMessage> }) => {
   const chatHistoryEnd = useRef<HTMLDivElement>(null);
@@ -45,7 +46,24 @@ export const ChatHistory = ({ messagesHistory }: { messagesHistory: Array<IMessa
             }}
           >
             <Paper sx={author === "user" ? { p: 1, backgroundColor: "primary.light" } : { p: 1 }}>
-              <Typography variant="body1">{text}</Typography>
+              <ReactMarkdown
+                components={{
+                  p: ({ node, ...props }) => <Typography paragraph {...props} />,
+                  code: ({ node, ...props }) => (
+                    <code
+                      style={{
+                        backgroundColor: "#f5f5f5",
+                        padding: "2px 4px",
+                        borderRadius: 4,
+                      }}
+                      {...props}
+                    />
+                  ),
+                }}
+              >
+                {text}
+              </ReactMarkdown>
+              {/* <Typography variant="body1">{text}</Typography> */}
             </Paper>
           </ListItem>
         ))}

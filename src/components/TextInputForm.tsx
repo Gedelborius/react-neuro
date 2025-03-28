@@ -10,7 +10,18 @@ interface ITextInputFormProps {
 export const TextInputForm = ({ handleSubmit, input, loading, setInput }: ITextInputFormProps) => {
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e: React.KeyboardEvent) => {
+          if (e.ctrlKey && (e.key === "Enter" || e.metaKey)) {
+            e.preventDefault();
+            handleSubmit(e);
+          }
+          if (e.key === "Enter" && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+          }
+        }}
+      >
         <TextField
           fullWidth
           multiline
@@ -22,6 +33,11 @@ export const TextInputForm = ({ handleSubmit, input, loading, setInput }: ITextI
           onChange={(e) => setInput(e.target.value)}
           sx={{ mb: 2 }}
           disabled={loading}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.ctrlKey && !e.metaKey) {
+              e.preventDefault();
+            }
+          }}
         />
 
         <Button type="submit" variant="contained" color="primary" disabled={loading} startIcon={loading ? <CircularProgress size={20} /> : null}>

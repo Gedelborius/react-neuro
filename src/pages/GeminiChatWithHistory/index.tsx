@@ -1,11 +1,10 @@
 import { Alert, Box } from "@mui/material";
-import { useAgentKey } from "../hooks/useAgentKey";
-import { useFormForGoogleGenerativeAI } from "../hooks/useFormForGoogleGenerativeAI";
-import { useGoogleGenerativeAI } from "../hooks/useGoogleGenerativeAI";
-import { TextInputForm } from "../components/TextInputForm";
-import AgentKey from "../components/AgentKey";
-import { IMessage } from "../interfaces/ChatHistoryInterfaces";
-import { ChatHistory } from "../components/ChatHistory";
+import { useAgentKey } from "../../hooks/useAgentKey";
+import { useGoogleGenerativeAI } from "../../hooks/useGoogleGenerativeAI";
+import { TextInputForm } from "../../components/TextInputForm";
+import AgentKey from "../../components/AgentKey";
+import { IMessage } from "../../interfaces/ChatHistoryInterfaces";
+import { ChatHistory } from "../../components/ChatHistory";
 import { useEffect, useState } from "react";
 
 // const testHistory: Array<IMessage> = Array.from({ length: 10 }, (_, index: number) => ({
@@ -35,15 +34,17 @@ export const GeminiChatWithHistory = () => {
 
   const [input, setInput] = useState("");
   const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const { loading, error, handleSubmit } = useFormForGoogleGenerativeAI(googleGenerativeAI, input, (text: string) => {
-    setMessageHistory((previusState) => {
-      const newState = [...previusState];
-      newState.push({ text: text, author: "ai" });
-      return newState;
-    });
-    setResponse(text);
-  });
+  // const { loading, error, handleSubmit } = useFormForGoogleGenerativeAI(googleGenerativeAI, input, (text: string) => {
+  //   setMessageHistory((previusState) => {
+  //     const newState = [...previusState];
+  //     newState.push({ text: text, author: "ai" });
+  //     return newState;
+  //   });
+  //   setResponse(text);
+  // });
 
   useEffect(() => {
     try {
@@ -53,6 +54,34 @@ export const GeminiChatWithHistory = () => {
       console.error("Error saving to localStorage key MESSAGE_HISTORY_KEY:", error);
     }
   }, [messageHistory]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const inputText = input;
+    setInput("");
+    if (!inputText.trim()) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const model = googleGenerativeAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(inputText);
+      const text = await result.response.text();
+
+      setMessageHistory((previusState) => {
+        const newState = [...previusState];
+        newState.push({ text: text, author: "ai" });
+        return newState;
+      });
+      setResponse(text);
+    } catch (err) {
+      setError("Error: " + (err instanceof Error ? err.message : "Failed to fetch"));
+      console.error("API Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box
@@ -65,10 +94,6 @@ export const GeminiChatWithHistory = () => {
         flexDirection: "column",
       }}
     >
-      {/* <Typography variant="h4" component="h1" gutterBottom>
-        Gemini Chat Interface
-      </Typography> */}
-
       <Box>
         <ChatHistory {...{ messagesHistory: messageHistory }} />
       </Box>

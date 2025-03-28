@@ -1,10 +1,10 @@
 import { Alert, Box, Typography } from "@mui/material";
-import { useAgentKey } from "../hooks/useAgentKey";
-import { useFormForGoogleGenerativeAI } from "../hooks/useFormForGoogleGenerativeAI";
-import { useGoogleGenerativeAI } from "../hooks/useGoogleGenerativeAI";
-import { TextInputForm } from "../components/TextInputForm";
-import AgentKey from "../components/AgentKey";
-import { ChatAnswer } from "../components/ChatAnswer";
+import { useAgentKey } from "../../hooks/useAgentKey";
+import { useFormForGoogleGenerativeAI } from "../../hooks/useFormForGoogleGenerativeAI";
+import { useGoogleGenerativeAI } from "../../hooks/useGoogleGenerativeAI";
+import { TextInputForm } from "../../components/TextInputForm";
+import AgentKey from "../../components/AgentKey";
+import { ChatAnswer } from "../../components/ChatAnswer";
 import { useState } from "react";
 
 export const GeminiChatWithAgentKey = () => {

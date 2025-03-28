@@ -104,7 +104,9 @@ export const GeminiChatWithHistory = () => {
             handleSubmit: (e: React.FormEvent) => {
               setMessageHistory((previusState) => {
                 const newState = [...previusState];
-                newState.push({ text: input, author: "user" });
+                console.log("input: ", input);
+                console.log("input.trim(): ", input.trim());
+                newState.push({ text: input.trim(), author: "user" });
                 return newState;
               });
               return handleSubmit(e);

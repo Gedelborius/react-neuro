@@ -3,83 +3,96 @@ import { useAgentKey } from "../../hooks/useAgentKey";
 import { useGoogleGenerativeAI } from "../../hooks/useGoogleGenerativeAI";
 import { TextInputForm } from "../../components/TextInputForm";
 import AgentKey from "../../components/AgentKey";
-import { IMessage } from "../../interfaces/ChatHistoryInterfaces";
 import { ChatHistory } from "../../components/ChatHistory";
-import { useEffect, useState } from "react";
-
-// const testHistory: Array<IMessage> = Array.from({ length: 10 }, (_, index: number) => ({
-//   text: index % 2 ? "2" : "1 + 1",
-//   author: index % 2 ? "ai" : "user",
-//   timestamp: new Date(),
-// }));
+import { useEffect, useRef, useState } from "react";
+import { IChatMessage, ROLE_NAMES } from "../../interfaces/ChatHistoryInterfaces";
+import { useGuaranteedMessages } from "../../hooks/useGuaranteedMessages";
 
 export const GeminiChatWithHistory = () => {
-  const { apiKey, setApiKey, deleteKey } = useAgentKey();
-  const { googleGenerativeAI } = useGoogleGenerativeAI(apiKey);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const [messageHistory, setMessageHistory] = useState(() => {
+  const [messages, setMessages] = useState<IChatMessage[]>(() => {
     try {
-      const savedData = localStorage.getItem("MESSAGE_HISTORY_KEY");
-      if (savedData) {
-        const parsedData: Array<IMessage> = JSON.parse(savedData);
-        if (parsedData.length > 0) {
-          return parsedData;
+      const savedMessages = localStorage.getItem("MESSAGES_KEY");
+      if (savedMessages) {
+        const parsedMessages: IChatMessage[] = JSON.parse(savedMessages);
+        if (parsedMessages.length > 0) {
+          return parsedMessages;
         }
       }
     } catch (error) {
-      console.error("Error load from localStorage key MESSAGE_HISTORY_KEY:", error);
+      console.error("Error load from localStorage key MESSAGES_KEY:", error);
     }
     return [];
   });
 
-  const [input, setInput] = useState("");
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  // const { loading, error, handleSubmit } = useFormForGoogleGenerativeAI(googleGenerativeAI, input, (text: string) => {
-  //   setMessageHistory((previusState) => {
-  //     const newState = [...previusState];
-  //     newState.push({ text: text, author: "ai" });
-  //     return newState;
-  //   });
-  //   setResponse(text);
-  // });
+  const { apiKey, setApiKey, deleteKey } = useAgentKey();
+  const { googleGenerativeAI } = useGoogleGenerativeAI(apiKey);
 
   useEffect(() => {
     try {
-      const valueToStore = JSON.stringify(messageHistory);
-      localStorage.setItem("MESSAGE_HISTORY_KEY", valueToStore);
+      const valueToStore = JSON.stringify(messages);
+      localStorage.setItem("MESSAGES_KEY", valueToStore);
     } catch (error) {
-      console.error("Error saving to localStorage key MESSAGE_HISTORY_KEY:", error);
+      console.error("Error saving to localStorage key MESSAGES_KEY:", error);
     }
-  }, [messageHistory]);
+  }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const inputText = input;
-    setInput("");
-    if (!inputText.trim()) return;
+    if (!loading) {
+      const inputText = input;
+      setInput("");
+      if (!inputText.trim()) return;
+      abortControllerRef.current = new AbortController();
 
-    setLoading(true);
-    setError("");
+      setLoading(true);
+      setError("");
 
-    try {
-      const model = googleGenerativeAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(inputText);
-      const text = await result.response.text();
+      const messagesWithInput = [...messages, { parts: [{ text: inputText }], role: ROLE_NAMES.USER }];
+      // { parts: [{ text: "" }], role: ROLE_NAMES.MODEL }
+      setMessages(messagesWithInput);
 
-      setMessageHistory((previusState) => {
-        const newState = [...previusState];
-        newState.push({ text: text, author: "ai" });
-        return newState;
-      });
-      setResponse(text);
-    } catch (err) {
-      setError("Error: " + (err instanceof Error ? err.message : "Failed to fetch"));
-      console.error("API Error:", err);
-    } finally {
-      setLoading(false);
+      try {
+        const model = googleGenerativeAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // const result = await model.generateContent({ contents: newMessages });
+
+        const result = await model.generateContentStream({ contents: messagesWithInput }, { signal: abortControllerRef.current?.signal });
+
+        setMessages((p) => [...p, { parts: [{ text: "" }], role: ROLE_NAMES.MODEL }]);
+
+        let response = "";
+
+        for await (const chunk of result.stream) {
+          const chunkText = chunk.text();
+          response += chunkText;
+          setMessages((previusMessages) => {
+            const newMessages = [...previusMessages];
+            newMessages[newMessages.length - 1].parts[0].text = response;
+            return newMessages;
+          });
+        }
+
+        // const outputText = await result.response.text();
+        // newMessages.push({ parts: [{ text: outputText }], role: ROLE_NAMES.MODEL });
+        // setMessages(newMessages);
+      } catch (error) {
+        setError("Error: " + (error instanceof Error ? error.message : "Failed to fetch"));
+        console.error("API Error:", error);
+        // if (error?.name !== "AbortError") {
+        //   setMessages((p) => {
+        //     const newMessages = [...p];
+        //     newMessages[newMessages.length - 1].parts[0].text = "Ошибка запроса.";
+        //     return newMessages;
+        //   });
+        // }
+      } finally {
+        setLoading(false);
+        abortControllerRef.current = null;
+      }
     }
   };
 
@@ -95,22 +108,13 @@ export const GeminiChatWithHistory = () => {
       }}
     >
       <Box>
-        <ChatHistory {...{ messagesHistory: messageHistory }} />
+        <ChatHistory {...{ messagesHistory: messages }} />
       </Box>
 
       <Box sx={{ mt: 1 }}>
         <TextInputForm
           {...{
-            handleSubmit: (e: React.FormEvent) => {
-              setMessageHistory((previusState) => {
-                const newState = [...previusState];
-                console.log("input: ", input);
-                console.log("input.trim(): ", input.trim());
-                newState.push({ text: input.trim(), author: "user" });
-                return newState;
-              });
-              return handleSubmit(e);
-            },
+            handleSubmit: handleSubmit,
             input,
             loading,
             setInput,

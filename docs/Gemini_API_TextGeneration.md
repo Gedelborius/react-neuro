@@ -19,7 +19,7 @@ Gemini не запоминает состояние между запросам�
 Проще всего получить ответ асинхронным циклом.
 
 ```
-for await (const кусок of result.stream) {
+for await (const chunk of result.stream) {
     const chunkText = chunk.text();
     setMessages((previusMessages) => {
         const newMessages = [...previusMessages];

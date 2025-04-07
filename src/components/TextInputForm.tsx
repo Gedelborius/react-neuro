@@ -1,4 +1,5 @@
-import { Button, CircularProgress, Paper, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, Paper, TextField, Typography } from "@mui/material";
+import { grey } from "@mui/material/colors";
 
 interface ITextInputFormProps {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
@@ -39,10 +40,12 @@ export const TextInputForm = ({ handleSubmit, input, loading, setInput }: ITextI
             }
           }}
         />
-
-        <Button type="submit" variant="contained" color="primary" disabled={loading} startIcon={loading ? <CircularProgress size={20} /> : null}>
-          {loading ? "Processing..." : "Ask Gemini"}
-        </Button>
+        <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <Button type="submit" variant="contained" color="primary" disabled={loading} startIcon={loading ? <CircularProgress size={20} /> : null}>
+            {loading ? "Processing..." : "Ask Gemini"}
+          </Button>
+          <Typography sx={{ color: grey[500] }}>Для отправки нажмите Control(Ctrl) + Enter</Typography>
+        </Box>
       </form>
     </Paper>
   );

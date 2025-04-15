@@ -1,5 +1,6 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { GeminiChatWithAgentKey } from "./pages/GeminiChatWithAgentKey";
+import { GeminiChatNewDesign } from "./pages/GeminiChatNewDesign";
 
 const theme = createTheme({
   palette: {
@@ -17,7 +18,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <GeminiChatWithAgentKey />
+      {/* <GeminiChatWithAgentKey /> */}
+      <GeminiChatNewDesign />
     </ThemeProvider>
   );
 }

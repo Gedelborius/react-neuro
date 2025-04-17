@@ -47,6 +47,7 @@ const ChatTextarea = styled.textarea`
   padding: 0;
   min-height: 60px;
   background-color: transparent;
+  color: white;
   &::placeholder {
     color: white;
   }

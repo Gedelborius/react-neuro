@@ -30,6 +30,7 @@ import { IChatMessage, ROLE_NAMES } from "../../interfaces/ChatHistoryInterfaces
 import { useAgentKey } from "../../hooks/useAgentKey";
 import { useGoogleGenerativeAI } from "../../hooks/useGoogleGenerativeAI";
 import { MaterialMarkdown } from "../../components/MaterialMarkdown";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const ChatTextarea = styled.textarea`
   overflow: hidden;
@@ -86,6 +87,15 @@ export const GeminiChatNewDesign = () => {
     return [];
   });
 
+  useEffect(() => {
+    try {
+      const valueToStore = JSON.stringify(messages);
+      localStorage.setItem("MESSAGES_KEY", valueToStore);
+    } catch (error) {
+      console.error("Error saving to localStorage key MESSAGES_KEY:", error);
+    }
+  }, [messages]);
+
   const scrollToBottom = () => {
     if (chatHistoryEnd.current) {
       chatHistoryEnd.current.scrollIntoView({
@@ -120,14 +130,9 @@ export const GeminiChatNewDesign = () => {
     }
   };
 
-  useEffect(() => {
-    try {
-      const valueToStore = JSON.stringify(messages);
-      localStorage.setItem("MESSAGES_KEY", valueToStore);
-    } catch (error) {
-      console.error("Error saving to localStorage key MESSAGES_KEY:", error);
-    }
-  }, [messages]);
+  const clearMessages = () => {
+    setMessages([]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,7 +210,7 @@ export const GeminiChatNewDesign = () => {
             mt: 1,
           }}
         >
-          <Box sx={{ display: "flex", p: 1, backgroundColor: grey[900], borderRadius: 2 }}>
+          <Box sx={{ display: "flex", p: 1, backgroundColor: grey[900], borderRadius: 2, "&>:not(button:first-of-type)": { ml: 2 } }}>
             <Button
               onClick={handleDialogClickOpen}
               startIcon={<VpnKeyIcon />}
@@ -219,6 +224,20 @@ export const GeminiChatNewDesign = () => {
               }}
             >
               API Key
+            </Button>
+            <Button
+              onClick={clearMessages}
+              startIcon={<DeleteIcon />}
+              variant="contained"
+              sx={{
+                backgroundColor: grey[500],
+                "&:hover": {
+                  backgroundColor: grey[600],
+                },
+                color: "black",
+              }}
+            >
+              Clear Chat
             </Button>
             <Dialog open={openDialog} onClose={handleDialogClose}>
               <DialogContent>

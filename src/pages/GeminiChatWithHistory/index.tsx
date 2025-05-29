@@ -6,7 +6,6 @@ import AgentKey from "../../components/AgentKey";
 import { ChatHistory } from "../../components/ChatHistory";
 import { useEffect, useRef, useState } from "react";
 import { IChatMessage, ROLE_NAMES } from "../../interfaces/ChatHistoryInterfaces";
-import { useGuaranteedMessages } from "../../hooks/useGuaranteedMessages";
 
 export const GeminiChatWithHistory = () => {
   const [input, setInput] = useState("");

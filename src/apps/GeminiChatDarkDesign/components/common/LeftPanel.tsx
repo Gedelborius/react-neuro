@@ -66,11 +66,11 @@ export const LeftPanel = ({ apiKey, setApiKey, chatsState, changeChat, addNewCha
     <Box
       sx={{
         width: openPanel ? "300px" : "max-content",
-        height: "100vh",
         backgroundColor: grey["A700"],
         position: "sticky",
         left: 0,
         top: 0,
+        bottom: 0,
         p: 1,
       }}
     >

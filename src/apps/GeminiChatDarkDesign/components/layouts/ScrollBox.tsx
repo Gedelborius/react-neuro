@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Box } from "@mui/material";
+import { grey } from "@mui/material/colors";
 
 export const ScrollBox = ({ children, ref }: { children: ReactNode; ref?: React.RefObject<HTMLDivElement | null> }) => {
   return (
@@ -20,6 +21,7 @@ export const ScrollBox = ({ children, ref }: { children: ReactNode; ref?: React.
         // maxHeight: "max-content",
         // width: "100%",
         overflowY: "auto",
+        backgroundColor: "#0a0a0a",
         // position: "relative",
         // "&::-webkit-scrollbar": {
         //   width: "8px",

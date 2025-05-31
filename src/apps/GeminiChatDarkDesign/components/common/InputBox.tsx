@@ -35,16 +35,12 @@ export const InputBox = ({ textareaValue, setTextareaValue, handleSubmit, loadin
       }}
     >
       <form
-        // style={{ padding: `${8 * 1}px` }}
         style={{ display: "flex", flexFlow: "column" }}
         onSubmit={handleSubmit}
         onKeyDown={(e: React.KeyboardEvent) => {
           if (e.ctrlKey && (e.key === "Enter" || e.metaKey)) {
             e.preventDefault();
             handleSubmit(e);
-          }
-          if (e.key === "Enter" && !e.ctrlKey && !e.metaKey) {
-            e.preventDefault();
           }
         }}
       >
@@ -59,11 +55,6 @@ export const InputBox = ({ textareaValue, setTextareaValue, handleSubmit, loadin
           ref={textareaRef}
           value={textareaValue}
           onChange={handleСhange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.ctrlKey && !e.metaKey) {
-              e.preventDefault();
-            }
-          }}
           disabled={loading}
         />
         <Box

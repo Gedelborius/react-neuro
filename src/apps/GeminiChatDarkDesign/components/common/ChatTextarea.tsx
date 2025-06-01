@@ -31,6 +31,7 @@ export const ChatTextarea = styled.textarea<{
   margin: 0,
   // minHeight: $minHeight ? `${$minHeight}px` : "60px",
   overflow: "hidden",
+  overflowY: "auto",
   fontSize: "16px",
   resize: "none",
   width: "100%",
@@ -44,6 +45,10 @@ export const ChatTextarea = styled.textarea<{
   "&::placeholder": {
     color: $placeholderColor ? $placeholderColor : "white",
   },
+  "&::-webkit-scrollbar": { width: "12px" },
+  "&::-webkit-scrollbar-track": { background: "#f1f1f1", borderRadius: "8px" },
+  "&::-webkit-scrollbar-thumb": { background: "#888", borderRadius: "8px" },
+  "&::-webkit-scrollbar-thumb:hover": { cursor: "pointer", background: "#555" },
   [breakpoints.xs]: {
     minHeight: "180px",
   },

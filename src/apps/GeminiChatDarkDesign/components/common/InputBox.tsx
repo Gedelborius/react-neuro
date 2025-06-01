@@ -18,10 +18,10 @@ export const InputBox = ({ textareaValue, setTextareaValue, handleSubmit, loadin
     const target = e.target;
     setTextareaValue(target.value);
 
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${target.scrollHeight}px`;
-    }
+    // if (textareaRef.current) {
+    //   textareaRef.current.style.height = "auto";
+    //   textareaRef.current.style.height = `${target.scrollHeight}px`;
+    // }
   };
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
